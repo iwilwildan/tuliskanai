@@ -34,7 +34,7 @@ const NoteEditor = ({ documentId }: Props) => {
 
       fetchNote();
     },
-    [documentId, updateNote]
+    [documentId]
   );
 
   return (

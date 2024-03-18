@@ -72,7 +72,7 @@ const TipTapEditor = ({ note }: Props) => {
         console.error(err);
       },
     });
-  }, [debouncedEditorState, saveNote]);
+  }, [debouncedEditorState]);
 
   useEffect(() => {
     if (!note || !editor) return;
