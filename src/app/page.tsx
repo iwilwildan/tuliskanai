@@ -16,7 +16,7 @@ export default async function Home() {
       .select()
       .from(documents)
       .where(eq(documents.userId, userId));
-    if (_documents) {
+    if (_documents.length >= 1) {
       linkToDocs = `/document/${_documents.findLast((x) => x.id)!.id}`;
     }
   }
