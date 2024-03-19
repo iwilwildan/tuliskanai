@@ -53,16 +53,19 @@ export const $template = pgTable('template', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const $userBalance = pgTable('user', {
+export const $userBalance = pgTable('user_balance', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id', { length: 256 }).notNull(),
-  planId: integer('plan_id'),
-  creditBalance: integer('credit_balance'),
+  planId: integer('plan_id').$default(() => 1),
+  creditBalance: integer('credit_balance').$default(() => 10),
 });
 
 export const transaction = pgTable('transaction', {
   id: serial('id').primaryKey(),
-  stripeId: varchar('user_id', { length: 256 }).notNull(),
+  paymentId: varchar('payment_id', { length: 256 }).notNull(),
+  userBalanceId: integer('user_balance_id')
+    .references(() => $userBalance.id)
+    .notNull(),
   amount: integer('amount'),
   credits: integer('credits'),
   plan: text('plan'),

@@ -1,6 +1,8 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
+import { db } from '@/lib/db';
+import { $userBalance } from '@/lib/db/schema';
 
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
@@ -52,6 +54,15 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
+  if (eventType === 'user.created') {
+    const { id } = evt.data;
+    const userBase_id = await db
+      .insert($userBalance)
+      .values({
+        userId: id,
+      })
+      .returning({ insertedId: $userBalance.id });
+  }
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
   console.log('Webhook body:', body);
 
