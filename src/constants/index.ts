@@ -75,3 +75,9 @@ export const plans = [
     ],
   },
 ];
+
+export const CreditValues = {
+  completion: 1,
+  generation: 2,
+  chat: 1,
+};

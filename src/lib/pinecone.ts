@@ -18,7 +18,7 @@ type PDFPage = {
   metadata: { loc: { pageNumber: number } };
 };
 
-let isProcessing = false;
+const queueOfDocToRetry: Document[] = [];
 
 export async function loadS3BatchIntoPinecone(
   file_keys: string[],
@@ -130,8 +130,9 @@ async function embedDocument(doc: Document) {
         },
       } as PineconeRecord;
     } catch (error: any) {
+      console.log({ ...error });
       if (error.code === 'rate_limit_exceeded') {
-        await delay(60000); // Delay in milliseconds (adjust as needed)
+        await delay(parseInt(process.env.DELAY_ON_RETRY ?? '20000')); // Delay in milliseconds (adjust as needed)
         retryCount++;
       } else {
         // If error is not rate_limit_exceeded, rethrow the error
@@ -144,21 +145,24 @@ async function embedDocument(doc: Document) {
 
 async function embedAllDocumentsWithRetry(allSegment: Document[]) {
   const vectors = [];
-
   for (const doc of allSegment) {
-    while (isProcessing) {
-      console.log('Another document is being processed. Waiting...');
-      await delay(1000);
-    }
-
-    isProcessing = true;
-
     try {
       const embeddings = await embedDocument(doc);
       vectors.push(embeddings); // Add embeddings to the vectors array
-    } finally {
-      isProcessing = false;
+      const indexToRemove = queueOfDocToRetry.indexOf(doc);
+      if (indexToRemove !== -1) {
+        queueOfDocToRetry.splice(indexToRemove, 1);
+      }
+    } catch (error) {
+      queueOfDocToRetry.push(doc);
     }
+  }
+
+  if (queueOfDocToRetry.length > 0) {
+    console.log(`retrying ${queueOfDocToRetry.length} doc chunks`);
+    delay(1000);
+    const retriedVector = await embedAllDocumentsWithRetry(queueOfDocToRetry);
+    retriedVector.forEach((v) => vectors.push(v));
   }
 
   return vectors;

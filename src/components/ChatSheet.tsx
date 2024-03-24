@@ -9,9 +9,9 @@ import {
 import { Button } from './ui/button';
 import ChatMessages from './ChatMessages';
 
-type Props = { documentId: number };
+type Props = { documentId: number; userId: string };
 
-const ChatSheet = ({ documentId }: Props) => {
+const ChatSheet = ({ documentId, userId }: Props) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -23,7 +23,7 @@ const ChatSheet = ({ documentId }: Props) => {
         <SheetHeader>
           <SheetTitle>Chat</SheetTitle>
         </SheetHeader>
-        <ChatMessages documentId={documentId} />
+        <ChatMessages documentId={documentId} userId={userId} />
       </SheetContent>
     </Sheet>
   );

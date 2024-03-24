@@ -71,7 +71,10 @@ const documentPage = async ({ params: { documentId } }: Props) => {
               <div className="p-2">
                 <div className="border shadow-xl border-stone-200 rounded-lg p-4 flex justify-between">
                   <DocumentTemplateDialog />
-                  <ChatSheet documentId={parseInt(documentId)} />
+                  <ChatSheet
+                    documentId={parseInt(documentId)}
+                    userId={userId}
+                  />
                 </div>
               </div>
               <NoteEditor documentId={parseInt(documentId)} />

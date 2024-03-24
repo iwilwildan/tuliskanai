@@ -1,7 +1,8 @@
 import FileUpload from '@/components/FileUpload';
+import TotalCredit from '@/components/TotalCredit';
 import { Button } from '@/components/ui/button';
 import { db } from '@/lib/db';
-import { documents } from '@/lib/db/schema';
+import { $userBalance, documents } from '@/lib/db/schema';
 import { UserButton, auth } from '@clerk/nextjs';
 import { eq } from 'drizzle-orm';
 import { LogIn } from 'lucide-react';
@@ -31,11 +32,14 @@ export default async function Home() {
             </h1>
             <UserButton afterSignOutUrl="/"></UserButton>
           </div>
-          <div className="flex mt-2">
+          <div className="flex mt-2 gap-1">
             {isAuth && (
-              <Link href={linkToDocs}>
-                <Button>Menuju Ruang Kerja</Button>
-              </Link>
+              <>
+                <Link href={linkToDocs}>
+                  <Button>Menuju Ruang Kerja</Button>
+                </Link>
+                <TotalCredit userId={userId} />
+              </>
             )}
           </div>
           <p className="max-w-xl mt-1 text-lg text-slate-600">

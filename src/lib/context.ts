@@ -36,6 +36,7 @@ export async function getContext(query: string, document_key: string) {
     (match) => match.score && match.score > 0.7
   );
 
+  //console.log(qualifiedResult);
   type Metadata = {
     text: string;
     pageNumber: number;

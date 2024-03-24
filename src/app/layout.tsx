@@ -4,6 +4,7 @@ import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import Provider from '@/components/Provider';
 import { Toaster } from 'react-hot-toast';
+import { UserBalanceProvider } from '@/components/UserBalanceProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,12 +20,14 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <Provider>
-        <html lang="en">
-          <body className={inter.className}>
-            {children}
-            <Toaster />
-          </body>
-        </html>
+        <UserBalanceProvider>
+          <html lang="en">
+            <body className={inter.className}>
+              {children}
+              <Toaster />
+            </body>
+          </html>
+        </UserBalanceProvider>
       </Provider>
     </ClerkProvider>
   );

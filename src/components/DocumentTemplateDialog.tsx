@@ -27,6 +27,8 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNote } from './NoteProvider';
+import { useUserBalance } from './UserBalanceProvider';
+import { CreditValues } from '@/constants';
 
 const FormSchema = z.object({
   title: z.string().min(10, {
@@ -46,6 +48,7 @@ type templateParams = {
 const DocumentTemplateDialog = (props: Props) => {
   const [open, setOpen] = useState(false);
   const { note, updateNote } = useNote();
+  const { userBalance, updateUserBalance } = useUserBalance();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -71,6 +74,7 @@ const DocumentTemplateDialog = (props: Props) => {
             onSuccess: (res) => {
               //console.log(res);
               updateNote({ ...note, content: res });
+              if (userBalance.id) updateUserBalance(-CreditValues.generation);
               setOpen(false);
               toast(`${data.template} dengan judul ${data.title} dituliskan`);
             },

@@ -57,7 +57,9 @@ export const $userBalance = pgTable('user_balance', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id', { length: 256 }).notNull(),
   planId: integer('plan_id').$default(() => 1),
-  creditBalance: integer('credit_balance').$default(() => 10),
+  creditBalance: integer('credit_balance')
+    .notNull()
+    .$default(() => 10),
 });
 
 export const transaction = pgTable('transaction', {
@@ -75,3 +77,4 @@ export const transaction = pgTable('transaction', {
 export type File = typeof files.$inferInsert;
 export type Note = typeof $notes.$inferInsert;
 export type DrizzleDocument = typeof documents.$inferSelect;
+export type UserBalance = typeof $userBalance.$inferInsert;
