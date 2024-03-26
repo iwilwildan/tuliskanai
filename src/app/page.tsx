@@ -38,7 +38,7 @@ export default async function Home() {
                 <Link href={linkToDocs}>
                   <Button>Menuju Ruang Kerja</Button>
                 </Link>
-                <TotalCredit userId={userId} />
+                <TotalCredit />
               </>
             )}
           </div>

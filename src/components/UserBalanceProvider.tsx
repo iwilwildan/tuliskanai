@@ -10,7 +10,6 @@ interface UserBalanceContextType {
   setUserBalance: (balance: UserBalance) => void;
 }
 type balanceParams = {
-  userId: string;
   increment: number;
 };
 type Props = {
@@ -32,7 +31,7 @@ const UserBalanceProvider: React.FC<Props> = ({ children }) => {
   });
   const updateUserBalance = (increment: number) => {
     if (userBalance && increment) {
-      const data = { userId: userBalance.userId, increment: increment };
+      const data = { increment: increment };
       mutate(data, {
         onSuccess(data) {
           setUserBalance(data);

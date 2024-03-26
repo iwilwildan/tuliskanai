@@ -1,14 +1,19 @@
 import { db } from '@/lib/db';
 import { $userBalance } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { auth } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
   try {
     const body = await req.json();
-    let { userId, increment } = body.data;
+    let { increment } = body.data;
 
-    if (!userId || !increment) {
+    if (!increment) {
       return new NextResponse('missing URL params', { status: 400 });
     }
 

@@ -15,13 +15,13 @@ export async function POST(req: Request, res: Response) {
   try {
     const body = await req.json();
     const { data } = body;
-    const fileKeys = data.map(
-      (obj: { file_key: string; file_name: string }) => obj.file_key
-    );
+    // const fileKeys = data.map(
+    //   (obj: { file_key: string; file_name: string }) => obj.file_key
+    // );
     const documentKey = `Document-${Date.now().toString()}-${Math.random()
       .toString(36)
       .substr(2, 4)}`;
-    await loadS3BatchIntoPinecone(fileKeys, documentKey);
+    //await loadS3BatchIntoPinecone(fileKeys, documentKey);
     const document_id = await db
       .insert(documents)
       .values({
@@ -46,7 +46,7 @@ export async function POST(req: Request, res: Response) {
     });
 
     return NextResponse.json(
-      { document_id: document_id[0].insertedId },
+      { document_id: document_id[0].insertedId, documentKey: documentKey },
       { status: 200 }
     );
   } catch (error) {

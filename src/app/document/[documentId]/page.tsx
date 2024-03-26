@@ -4,7 +4,8 @@ import DocumentTemplateDialog from '@/components/DocumentTemplateDialog';
 import NoteEditor from '@/components/NoteEditor';
 import { NoteProvider } from '@/components/NoteProvider';
 import PDFViewer from '@/components/PDFViewer';
-import TipTapEditor from '@/components/TipTapEditor';
+import TotalCredit from '@/components/TotalCredit';
+import VectorStatus from '@/components/VectorStatus';
 
 import {
   ResizableHandle,
@@ -13,9 +14,8 @@ import {
 } from '@/components/ui/resizable';
 
 import { db } from '@/lib/db';
-import { $notes, File, documents } from '@/lib/db/schema';
+import { documents } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs';
-import axios from 'axios';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import React from 'react';
@@ -29,7 +29,6 @@ const documentPage = async ({ params: { documentId } }: Props) => {
   if (!userId) {
     return redirect('/sign-in');
   }
-
   const _documents = await db
     .select()
     .from(documents)
@@ -40,9 +39,6 @@ const documentPage = async ({ params: { documentId } }: Props) => {
   if (!_documents.find((document) => document.id === parseInt(documentId))) {
     return redirect('/');
   }
-  const currentdocument = _documents.find(
-    (document) => document.id === parseInt(documentId)
-  )!;
 
   return (
     <ResizablePanelGroup direction="horizontal" className="flex">
@@ -70,11 +66,15 @@ const documentPage = async ({ params: { documentId } }: Props) => {
             <NoteProvider>
               <div className="p-2">
                 <div className="border shadow-xl border-stone-200 rounded-lg p-4 flex justify-between">
-                  <DocumentTemplateDialog />
-                  <ChatSheet
-                    documentId={parseInt(documentId)}
-                    userId={userId}
-                  />
+                  <div className="flex gap-2">
+                    <DocumentTemplateDialog />
+                    <ChatSheet
+                      documentId={parseInt(documentId)}
+                      userId={userId}
+                    />
+                  </div>
+
+                  <VectorStatus documentId={parseInt(documentId)} />
                 </div>
               </div>
               <NoteEditor documentId={parseInt(documentId)} />

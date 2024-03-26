@@ -2,7 +2,7 @@ import { DrizzleDocument } from '@/lib/db/schema';
 import Link from 'next/link';
 import React from 'react';
 import { Button } from './ui/button';
-import { MessageCircle, MessageCirclePlus, PlusCircle } from 'lucide-react';
+import { MessageCircle, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Props = {

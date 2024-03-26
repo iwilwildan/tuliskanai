@@ -13,12 +13,25 @@ type pdfParams = {
   file_key: string;
   file_name: string;
 };
+type vectorParams = {
+  pdfData: pdfParams[];
+  documentKey: string;
+};
 const FileUpload = (props: Props) => {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const { isPending, mutate } = useMutation({
     mutationFn: async (data: pdfParams[]) => {
       const response = await axios.post('/api/create-document', {
+        data,
+      });
+      return response.data;
+    },
+  });
+  const { mutate: loadVector } = useMutation({
+    mutationFn: async (data: vectorParams) => {
+      console.log(data);
+      const response = await axios.post('/api/load-vector', {
         data,
       });
       return response.data;
@@ -39,11 +52,13 @@ const FileUpload = (props: Props) => {
         const data = (await Promise.all(
           acceptedFiles.map((file) => uploadToS3(file))
         )) as pdfParams[];
-
+        const vectorData = { pdfData: data, documentKey: '' } as vectorParams;
         mutate(data, {
-          onSuccess: ({ document_id }) => {
+          onSuccess: ({ document_id, documentKey }) => {
             toast.success('Session created');
             router.push(`/document/${document_id}`);
+            vectorData.documentKey = documentKey;
+            loadVector(vectorData);
           },
           onError: (err) => {
             console.log(err);
