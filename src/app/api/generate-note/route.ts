@@ -13,9 +13,9 @@ const openai = new OpenAIApi(config);
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    let { noteId, title, templateId } = body.data;
+    let { noteId, title, templateId, customTemplate } = body.data;
 
-    if (!noteId || !title || !templateId) {
+    if (!noteId || !title || (!templateId && !customTemplate)) {
       return new NextResponse('missing URL params', { status: 400 });
     }
     noteId = parseInt(noteId);
@@ -26,20 +26,24 @@ export async function POST(req: Request) {
     }
     const note = notes[0];
 
-    templateId = parseInt(templateId);
-    //get template object
-    const templates = await db
-      .select()
-      .from($template)
-      .where(eq($template.id, templateId));
-    if (templates.length != 1) {
-      return NextResponse.json(
-        { error: 'template not found' },
-        { status: 404 }
-      );
+    let template;
+    if (templateId) {
+      templateId = parseInt(templateId);
+      //get template object
+      const templates = await db
+        .select()
+        .from($template)
+        .where(eq($template.id, templateId));
+      if (templates.length != 1) {
+        return NextResponse.json(
+          { error: 'template not found' },
+          { status: 404 }
+        );
+      }
+      template = templates[0];
+    } else {
+      template = customTemplate;
     }
-    const template = templates[0];
-
     const _documents = await db
       .select()
       .from(documents)
@@ -67,9 +71,11 @@ export async function POST(req: Request) {
           ${context}
           END OF CONTEXT BLOCK
           START STRUCTURE BLOCK
-          ${template.content}
+          ${template.id ? template.content : template}
           END OF STRUCTURE BLOCK
-          AI assistant will take into account any CONTEXT BLOCK that is provided and generate a ${template.templateName} 
+          AI assistant will take into account any CONTEXT BLOCK that is provided and generate a ${
+            template.id ? template.templateName : 'writing'
+          } 
           following the structure provided in STRUCTURE BLOCK.
           AI assistant will generate content along with its HTML Tags.
           If the context does not provide the necessary information, the AI assistant will expand using its large corpus knowledge.
@@ -79,9 +85,9 @@ export async function POST(req: Request) {
         {
           role: 'user',
           content: `
-            I am writing a ${template.templateName} in a notion text editor app.
+            I am writing in a notion text editor app.
             Help me complete my writing with title of: ##${title}##
-            keep the tone of the text consistent as a ${template.templateName}.
+            keep the tone of the text consistent.
             `,
         },
       ],

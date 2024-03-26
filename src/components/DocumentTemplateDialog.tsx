@@ -30,19 +30,41 @@ import { useNote } from './NoteProvider';
 import { useUserBalance } from './UserBalanceProvider';
 import { CreditValues } from '@/constants';
 
-const FormSchema = z.object({
-  title: z.string().min(10, {
-    message: 'Title must be at least 10 characters.',
-  }),
-  template: z.enum(['1', '2'], {
-    required_error: 'Please select a template.',
-  }),
-});
+const FormSchema = z
+  .object({
+    title: z.string().min(10, {
+      message: 'Title must be at least 10 characters.',
+    }),
+    template: z
+      .enum(['1', '2'], {
+        required_error: 'Please select a template.',
+      })
+      .optional(),
+    customTemplate: z.string().optional(),
+  })
+  .superRefine(({ template, customTemplate }, refinementContext) => {
+    if (customTemplate === undefined && template === undefined) {
+      return refinementContext.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'please select a template or define your custom template',
+        path: ['template'],
+      });
+    }
+
+    if (customTemplate === '' && template === undefined) {
+      return refinementContext.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'please select a template or define your custom template',
+        path: ['customTemplate'],
+      });
+    }
+  });
 type Props = {};
 type templateParams = {
   title: string;
-  templateId: string;
+  templateId: string | undefined;
   noteId: string;
+  customTemplate: string | undefined;
 };
 
 const DocumentTemplateDialog = (props: Props) => {
@@ -69,6 +91,7 @@ const DocumentTemplateDialog = (props: Props) => {
             noteId: note.id.toString(),
             title: data.title,
             templateId: data.template,
+            customTemplate: data.customTemplate,
           },
           {
             onSuccess: (res) => {
@@ -200,16 +223,16 @@ const DocumentTemplateDialog = (props: Props) => {
                             </div> */}
                             <div className="space-y-2 rounded-md bg-slate-800 p-2 shadow-sm">
                               <div className="w-auto rounded-lg bg-slate-600 px-2">
-                                Literature Review
+                                Materials and Methods
                               </div>
                               <div className="w-auto rounded-lg bg-slate-600 px-2">
-                                Hypotheses
+                                Results
                               </div>
                               <div className="w-auto rounded-lg bg-slate-600 px-2">
-                                Methodology
+                                Discussion
                               </div>
                               <div className="w-auto rounded-lg bg-slate-600 px-2">
-                                Timeline
+                                Conclusion
                               </div>
                             </div>
                             <div className="space-y-2 rounded-md bg-slate-800 p-2 shadow-sm">
@@ -220,11 +243,28 @@ const DocumentTemplateDialog = (props: Props) => {
                           </div>
                         </div>
                         <span className="block w-full p-2 text-center font-normal">
-                          Proposal Penelitian
+                          Makalah Ilmiah
                         </span>
                       </FormLabel>
                     </FormItem>
                   </RadioGroup>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="customTemplate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Custom Template</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Deskripsikan struktur tulisanmu sendiri"
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
